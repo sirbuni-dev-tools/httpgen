@@ -1,0 +1,26 @@
+name: agents
+summary: Recipes for LLM agents and scripts
+---
+NAME
+    httpgen for agents and scripts
+
+DESCRIPTION
+    httpgen saves an agent the tokens it would spend reading controllers and writing requests. Output is plain text when it is not a terminal, help never opens a pager when piped, and exit codes are stable.
+
+RECIPES
+    See the API first, as JSON:
+    $ httpgen --list src/main/java --format json
+    Get the requests for one endpoint without writing anything:
+    $ httpgen --req src/main/java/com/acme/web/EmployeeController.java --method addEmployee --stdout
+    Check what a run would change:
+    $ httpgen --req src/main/java --dry-run --format json
+    A payload with repeatable values:
+    $ httpgen --json src/main/java/com/acme/dto/EmployeeDto.java --seed 7 --stdout
+    A file field for a JSON body:
+    $ httpgen --base64 pdf --json-field attachment
+
+EXIT STATUS
+    0 success. 1 nothing found. 2 usage error. 3 parse error, with file and line.
+
+SEE ALSO
+    list, req, json, base64

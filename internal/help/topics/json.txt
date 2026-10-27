@@ -1,0 +1,42 @@
+name: json
+summary: Write JSON payloads with fake values (--json)
+---
+NAME
+    httpgen --json - write JSON payloads with realistic fake values
+
+SYNOPSIS
+    httpgen --json <path> [--class <name>] [--method <name>]... [--mode <fixed|placeholders>] [--out <path>] [--stdout] [--seed <n>] [--depth <n>]
+
+STATUS
+    Not available in this build yet. This page describes how it will behave.
+
+DESCRIPTION
+    For a class file, writes one JSON document for the class. For a controller or resolver, writes one per endpoint: its request body, or its parameters as one object. Files go to <module>/.local/json, named <Class>.json or <Class>.<method>.json.
+
+    Values follow the same rules as the API HTTP Generator plugin: validation constraints first, then the field name, then the Java type. A payload's own id is null, server-generated fields are left out, a password and its confirmation match, and search filters are empty.
+
+OPTIONS
+    --json <path>
+        A .java file or a folder.
+    --class <name>
+        The class to use when a file declares several. Default: the first top-level class.
+    --method <name>
+        For a controller or resolver: only this method. Repeat it for several.
+    --mode <fixed|placeholders>
+        Fixed values paste anywhere; placeholders only work in .http files. Default: fixed.
+    --out <path>
+        Folder for the files. Default: <module>/.local/json.
+    --stdout
+        Print instead of writing files.
+    --seed <n>
+        Repeatable fixed values, for tests and documentation.
+    --depth <n>
+        How deep nested objects go. Default: 3.
+
+EXAMPLES
+    $ httpgen --json src/main/java/com/acme/dto/EmployeeDto.java --stdout
+    $ httpgen --json src/main/java/com/acme/web/EmployeeController.java --method addEmployee
+    $ httpgen --json src/main/java/com/acme/dto/EmployeeDto.java --seed 42 --stdout
+
+SEE ALSO
+    req, base64

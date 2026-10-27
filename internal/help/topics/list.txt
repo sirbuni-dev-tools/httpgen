@@ -1,0 +1,25 @@
+name: list
+summary: List endpoints and operations, one per line (--list)
+---
+NAME
+    httpgen --list - list endpoints and GraphQL operations
+
+SYNOPSIS
+    httpgen --list <path> [--format <text|json>]
+
+STATUS
+    Not available in this build yet. This page describes how it will behave.
+
+DESCRIPTION
+    Prints one line per REST endpoint (verb, path, method name) and per SPQR operation (query or mutation, operation name, method name) found in a file or under a folder. It is the cheapest way to see an API before generating anything.
+
+OPTIONS
+    --list <path>
+        A .java file or a folder.
+
+EXAMPLES
+    $ httpgen --list src/main/java
+    $ httpgen --list src/main/java --format json
+
+SEE ALSO
+    req, agents
