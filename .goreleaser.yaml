@@ -1,0 +1,126 @@
+# Release configuration for httpgen (GoReleaser v2, free edition).
+# CI on dev runs `goreleaser release --snapshot --clean` to prove this file builds;
+# a merge to main tags the next version and runs `goreleaser release --clean`.
+version: 2
+
+project_name: httpgen
+
+before:
+  hooks:
+    - go mod tidy -diff
+    # The man page ships in every archive, package, cask and bucket.
+    - sh -c 'mkdir -p dist-extra && go run -ldflags "-X github.com/sirbuni-dev-tools/httpgen/internal/version.Version={{ .Version }}" ./cmd/httpgen --man | gzip -9 -n > dist-extra/httpgen.1.gz'
+
+builds:
+  - id: httpgen
+    main: ./cmd/httpgen
+    binary: httpgen
+    env:
+      - CGO_ENABLED=0
+    goos: [darwin, linux, windows]
+    goarch: [amd64, arm64]
+    ignore:
+      - goos: windows
+        goarch: arm64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X github.com/sirbuni-dev-tools/httpgen/internal/version.Version={{ .Version }}
+      - -X github.com/sirbuni-dev-tools/httpgen/internal/version.Commit={{ .ShortCommit }}
+      - -X github.com/sirbuni-dev-tools/httpgen/internal/version.Date={{ .CommitDate }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  - id: httpgen
+    ids: [httpgen]
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    files:
+      - LICENSE
+      - README.md
+      - src: dist-extra/httpgen.1.gz
+        dst: man
+        strip_parent: true
+
+checksum:
+  name_template: checksums.txt
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-snapshot"
+
+changelog:
+  sort: asc
+  use: git
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\(.+\))??!?:.+$'
+      order: 0
+    - title: Fixes
+      regexp: '^.*?fix(\(.+\))??!?:.+$'
+      order: 1
+    - title: Other changes
+      order: 999
+  filters:
+    exclude:
+      - '^merge:'
+      - '^docs:'
+      - '^chore:'
+
+nfpms:
+  - id: httpgen
+    ids: [httpgen]
+    package_name: httpgen
+    vendor: sirbuni-dev-tools
+    homepage: https://github.com/sirbuni-dev-tools/httpgen
+    maintainer: sirbuni-dev-tools <https://github.com/sirbuni-dev-tools>
+    description: Generate IntelliJ HTTP Client requests and JSON payloads from Spring and SPQR sources.
+    license: MIT
+    formats: [deb, rpm]
+    bindir: /usr/bin
+    contents:
+      - src: dist-extra/httpgen.1.gz
+        dst: /usr/share/man/man1/httpgen.1.gz
+        file_info:
+          mode: 0644
+
+homebrew_casks:
+  - name: httpgen
+    ids: [httpgen]
+    binaries: [httpgen]
+    manpages: [man/httpgen.1.gz]
+    homepage: https://github.com/sirbuni-dev-tools/httpgen
+    description: Generate IntelliJ HTTP Client requests and JSON payloads from Spring and SPQR sources
+    license: MIT
+    commit_msg_template: "chore(cask): httpgen {{ .Tag }}"
+    # The binary is not signed or notarized yet, so clear the quarantine flag Homebrew sets.
+    hooks:
+      post:
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/httpgen"]
+          end
+    repository:
+      owner: sirbuni-dev-tools
+      name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+
+scoops:
+  - name: httpgen
+    ids: [httpgen]
+    homepage: https://github.com/sirbuni-dev-tools/httpgen
+    description: Generate IntelliJ HTTP Client requests and JSON payloads from Spring and SPQR sources.
+    license: MIT
+    commit_msg_template: "chore(scoop): httpgen {{ .Tag }}"
+    repository:
+      owner: sirbuni-dev-tools
+      name: scoop-bucket
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
+
+release:
+  github:
+    owner: sirbuni-dev-tools
+    name: httpgen
