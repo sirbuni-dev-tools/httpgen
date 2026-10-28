@@ -7,11 +7,10 @@ NAME
 SYNOPSIS
     httpgen --json <path> [--class <name>] [--method <name>]... [--mode <fixed|placeholders>] [--out <path>] [--stdout] [--seed <n>] [--depth <n>]
 
-STATUS
-    Not available in this build yet. This page describes how it will behave.
-
 DESCRIPTION
-    For a class file, writes one JSON document for the class. For a controller or resolver, writes one per endpoint: its request body, or its parameters as one object. Files go to <module>/.local/json, named <Class>.json or <Class>.<method>.json.
+    For a class file, writes one JSON document for the class. For a controller or resolver, writes one per endpoint: its request body, or its parameters as one object. Files go to <module>/.local/json, named <Class>.json or <Class>.<method>.json; an overloaded method gets a number, as in <Class>.<method>2.json.
+
+    With --stdout and more than one payload, each document is preceded by a // <name> line and separated by a blank line. With a single payload the output is plain JSON.
 
     Values follow the same rules as the API HTTP Generator plugin: validation constraints first, then the field name, then the Java type. A payload's own id is null, server-generated fields are left out, a password and its confirmation match, and search filters are empty.
 
@@ -19,7 +18,7 @@ OPTIONS
     --json <path>
         A .java file or a folder.
     --class <name>
-        The class to use when a file declares several. Default: the first top-level class.
+        Only this class, top-level or nested, by simple or qualified name. Default: every top-level class in the path.
     --method <name>
         For a controller or resolver: only this method. Repeat it for several.
     --mode <fixed|placeholders>
@@ -28,6 +27,10 @@ OPTIONS
         Folder for the files. Default: <module>/.local/json.
     --stdout
         Print instead of writing files.
+    --format <text|json>
+        With json, print {"written": [...]} listing the files written.
+    --quiet
+        Do not list the files written.
     --seed <n>
         Repeatable fixed values, for tests and documentation.
     --depth <n>
@@ -37,6 +40,9 @@ EXAMPLES
     $ httpgen --json src/main/java/com/acme/dto/EmployeeDto.java --stdout
     $ httpgen --json src/main/java/com/acme/web/EmployeeController.java --method addEmployee
     $ httpgen --json src/main/java/com/acme/dto/EmployeeDto.java --seed 42 --stdout
+
+EXIT STATUS
+    0 on success, 1 when nothing matched, 2 for a usage error or unreadable path, 3 when a Java file cannot be parsed.
 
 SEE ALSO
     req, base64

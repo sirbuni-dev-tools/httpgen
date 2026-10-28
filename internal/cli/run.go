@@ -69,6 +69,8 @@ func Run(args []string, t Terminal) int {
 	case ActionVersion:
 		fmt.Fprintf(t.Out, "httpgen %s (commit %s, built %s)\n", version.Version, version.Commit, version.Date)
 		return ExitOK
+	case ActionJSON:
+		return runJSON(opts, t)
 	default:
 		fmt.Fprintf(t.Err, "httpgen: --%s is not available in this build yet (see httpgen --help %s)\n", opts.Action, opts.Action)
 		return ExitUsage
