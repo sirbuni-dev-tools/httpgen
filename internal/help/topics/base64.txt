@@ -1,0 +1,36 @@
+name: base64
+summary: Encode a file or a built-in sample as Base64 (--base64)
+---
+NAME
+    httpgen --base64 - print a file as a Base64 string
+
+SYNOPSIS
+    httpgen --base64 <file|pdf|csv|jpeg|png> [--data-uri] [--wrap <n>] [--json-field <name>] [--out <path>] [--quiet]
+
+DESCRIPTION
+    APIs that take uploads inside JSON, such as SPQR inputs, expect files as Base64 strings, and every operating system encodes them with a different command. httpgen does it the same way everywhere. Pass a file path, or one of the built-in samples (a one-page PDF, a small CSV, and small JPEG and PNG images) when you just need something valid to send. A file that exists wins over a sample of the same name. The MIME type comes from the file extension, or from the content when the extension is unknown, and is the same on every operating system.
+
+OPTIONS
+    --base64 <file|pdf|csv|jpeg|png>
+        The file to encode, or a sample name: pdf, csv, jpeg (or jpg), png.
+    --data-uri
+        Prefix the result with data:<mime type>;base64, for fields that expect a data URI.
+    --wrap <n>
+        Break the output into lines of n characters, such as 76 for MIME. Default: 0, one line. Not allowed with --json-field, because a line break inside a JSON string breaks strict decoders.
+    --json-field <name>
+        Print a JSON object ready to paste: the Base64 string under <name>, the file name under <name>Name and the MIME type under <name>Type.
+    --out <path>
+        Write to this file instead of standard output, and report the file written (unless --quiet).
+    --quiet
+        Do not report the file written.
+
+EXAMPLES
+    $ httpgen --base64 ./contract.pdf
+    $ httpgen --base64 png --data-uri
+    $ httpgen --base64 pdf --json-field attachment
+
+EXIT STATUS
+    0 on success, 2 when the target is neither a file nor a sample, or for a usage error.
+
+SEE ALSO
+    json

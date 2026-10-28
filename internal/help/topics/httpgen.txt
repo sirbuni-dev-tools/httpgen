@@ -1,0 +1,60 @@
+name: httpgen
+summary: Overview, common options and the list of topics
+---
+NAME
+    httpgen - generate IntelliJ HTTP Client requests and JSON payloads from source code
+
+SYNOPSIS
+    httpgen --req <path> [options]
+    httpgen --json <path> [options]
+    httpgen --base64 <file|pdf|csv|jpeg|png> [options]
+    httpgen --list <path> [options]
+    httpgen --help [topic]
+
+DESCRIPTION
+    httpgen reads Spring Boot controllers and SPQR GraphQL resolvers and writes the same .http request files as the API HTTP Generator plugin for IntelliJ IDEA, without the IDE. The files also run in the VS Code REST Client and the ijhttp command line runner. It is built for terminal users and for LLM agents: one command replaces reading a controller and writing requests by hand.
+
+MAIN OPTIONS
+    --req <path>
+        Write or extend the .http request file for a controller or resolver, or for every one under a folder. See: httpgen --help req
+    --json <path>
+        Write JSON payloads with fake values for a class or a controller's endpoints. See: httpgen --help json
+    --base64 <file|sample>
+        Print a file, or a built-in sample, as a Base64 string. See: httpgen --help base64
+    --list <path>
+        Print one line per endpoint or operation. See: httpgen --help list
+
+COMMON OPTIONS
+    --format <text|json>
+        Output for --list, --dry-run and summaries. json is meant for scripts and agents. Default: text.
+    --lang <auto|java>
+        Language of the input. auto detects it from file extensions and build files. Default: auto.
+    --quiet, -q
+        Print errors only.
+    --verbose, -v
+        Explain each step.
+    --no-pager
+        Print help straight to the terminal instead of through $PAGER.
+    --help [topic], -h
+        Show this overview, or the page for a topic. Putting --help after an option shows that option's page, so httpgen --req --help equals httpgen --help req.
+    --man
+        Print the whole manual as a roff man page.
+    --version
+        Print the version, commit and build date.
+
+EXAMPLES
+    $ httpgen --help req
+    $ httpgen --req --help
+    $ httpgen --help topics
+    $ httpgen --man
+
+MAN PAGE
+    Install the manual once to read it with man:
+    | httpgen --man > /usr/local/share/man/man1/httpgen.1
+    | man httpgen
+
+EXIT STATUS
+    0 success. 1 nothing found to generate. 2 a usage error, such as an unknown option. 3 a source file could not be parsed (the file and line are reported).
+
+HELP TOPICS
+    req, json, base64, list, env, agents. Run httpgen --help topics for a summary of each.
