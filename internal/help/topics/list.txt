@@ -5,10 +5,7 @@ NAME
     httpgen --list - list endpoints and GraphQL operations
 
 SYNOPSIS
-    httpgen --list <path> [--format <text|json>]
-
-STATUS
-    Not available in this build yet. This page describes how it will behave.
+    httpgen --list <path> [--class <name>] [--format <text|json>]
 
 DESCRIPTION
     Prints one line per REST endpoint (verb, path, method name) and per SPQR operation (query or mutation, operation name, method name) found in a file or under a folder. It is the cheapest way to see an API before generating anything.
@@ -16,6 +13,13 @@ DESCRIPTION
 OPTIONS
     --list <path>
         A .java file or a folder.
+    --class <name>
+        Only this class.
+    --format <text|json>
+        Text is aligned columns: verb or operation kind, path or operation name, Class.method. JSON is an array of {"kind", "verb", "path", "name", "class", "method", "file", "line"}, where kind is rest, query or mutation.
+
+EXIT STATUS
+    0 when something was listed, 1 when nothing was found, 2 for a usage error, 3 for a parse error.
 
 EXAMPLES
     $ httpgen --list src/main/java

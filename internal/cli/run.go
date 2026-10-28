@@ -71,6 +71,10 @@ func Run(args []string, t Terminal) int {
 		return ExitOK
 	case ActionJSON:
 		return runJSON(opts, t)
+	case ActionReq:
+		return runReq(opts, t)
+	case ActionList:
+		return runList(opts, t)
 	default:
 		fmt.Fprintf(t.Err, "httpgen: --%s is not available in this build yet (see httpgen --help %s)\n", opts.Action, opts.Action)
 		return ExitUsage

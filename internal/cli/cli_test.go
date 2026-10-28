@@ -130,7 +130,7 @@ func TestRunVersionManAndUnbuiltActions(t *testing.T) {
 	if code, out, _ := run("--man"); code != ExitOK || !strings.HasPrefix(out, ".TH HTTPGEN 1") || !strings.Contains(out, ".SH TOPIC: REQ") {
 		t.Errorf("man: %d %q", code, out[:min(len(out), 200)])
 	}
-	if code, _, errOut := run("--req a.java"); code != ExitUsage || !strings.Contains(errOut, "not available in this build yet") {
-		t.Errorf("req: %d %q", code, errOut)
+	if code, _, errOut := run("--base64 pdf"); code != ExitUsage || !strings.Contains(errOut, "not available in this build yet") {
+		t.Errorf("base64: %d %q", code, errOut)
 	}
 }
