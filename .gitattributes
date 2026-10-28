@@ -1,0 +1,2 @@
+# Built-in samples are embedded byte for byte; never convert their line endings.
+internal/base64/samples/** binary

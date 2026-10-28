@@ -1,0 +1,7 @@
+/.local/
+/bin/
+/dist/
+.DS_Store
+.idea/
+*.iml
+/dist-extra/

@@ -1,0 +1,57 @@
+name: req
+summary: Write .http request files for controllers and resolvers (--req)
+---
+NAME
+    httpgen --req - write or extend .http request files
+
+SYNOPSIS
+    httpgen --req <path> [--method <name>]... [--out <path>] [--stdout] [--dry-run] [--mode <placeholders|fixed>] [--host <url>] [--env <name>] [--no-login] [--depth <n>] [--class <name>] [--seed <n>] [--format <text|json>]
+
+DESCRIPTION
+    Reads a Spring MVC controller (@RestController, @Controller, @RequestMapping) or an SPQR resolver (@GraphQLQuery, @GraphQLMutation), or every one under a folder, and writes one request per endpoint into <module>/.local/http/<Class>.http. The module is the nearest folder holding pom.xml, build.gradle or build.gradle.kts.
+
+    Running it again only appends requests the file does not have, so edits are kept. A request is recognised by its request line, or by its operation line for GraphQL. Every request has a ### title and a unique # @name. Path variables and ids become file variables at the top of the file, such as @id = 1, so updates and deletes never use a random id.
+
+    GraphQL files start with a login request that stores access_token. http-client.env.json and http-client.private.env.json are created next to the requests, or extended with missing keys. See: httpgen --help env
+
+OPTIONS
+    --req <path>
+        A .java file or a folder.
+    --method <name>
+        Only this handler or resolver method. Repeat it for several. Default: every one.
+    --out <path>
+        Folder for the .http and env files. Default: <module>/.local/http.
+    --stdout
+        Print the requests instead of writing files. Nothing is written. Best for agents. With more than one class, each file's text starts with a # file: <Class>.http line.
+    --dry-run
+        Report what would be added and what is already there, and write nothing.
+    --mode <placeholders|fixed>
+        Bodies with {{$random...}} placeholders, fresh on every run, or with fixed fake values. Default: placeholders.
+    --host <url>
+        HOST for a new env file. Default: http://localhost:<server.port><context path> from application.properties or application.yml, else http://localhost:8080.
+    --env <name>
+        Environment to create or extend in the env files. Default: local.
+    --no-login
+        Leave out the GraphQL login request.
+    --depth <n>
+        How deep nested objects and GraphQL selections go. Default: 3.
+    --class <name>
+        Only this class, top-level or nested, by simple or qualified name. Default: every class in the path.
+    --seed <n>
+        Repeatable fake values, for tests and documentation.
+    --format <text|json>
+        Report as text, one line per file, or as {"files": [{"path", "added", "skipped", "env"}], "dryRun": false}.
+
+OUTPUT
+    For each .http file: the request names added, how many were already there, and each env file that was created or extended. --dry-run reports the same with "would add" and changes nothing on disk.
+
+EXAMPLES
+    $ httpgen --req src/main/java/com/acme/web/EmployeeController.java
+    $ httpgen --req src/main/java --dry-run
+    $ httpgen --req src/main/java/com/acme/web/EmployeeController.java --method addEmployee --stdout
+
+EXIT STATUS
+    0 on success, including when every request is already in its file. 1 when no endpoint or operation matched. 2 for a usage error or an unreadable path or env file. 3 when a Java file cannot be parsed.
+
+SEE ALSO
+    json, env, list, agents
