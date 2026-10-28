@@ -17,3 +17,10 @@ vet:
 
 fmt:
 	gofmt -l -w .
+
+PLUGIN_RULES ?= ../../INTELLIJ/custom-plugins/api-http-generator/src/main/resources/rules.json
+
+.PHONY: sync-rules
+# Copy the shared fake-value rules from the plugin, their source of truth.
+sync-rules:
+	cp $(PLUGIN_RULES) internal/rules/rules.json
