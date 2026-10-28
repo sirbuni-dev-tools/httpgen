@@ -64,27 +64,22 @@ func runReq(o Options, t Terminal) int {
 	}
 
 	var reports []fileReport
+	out := &staged{dryRun: o.DryRun, files: map[string]string{}}
 	for _, f := range files {
-		existing, err := os.ReadFile(f.path())
-		if err != nil && !os.IsNotExist(err) {
+		existing, err := out.read(f.path())
+		if err != nil {
 			fmt.Fprintf(t.Err, "httpgen: %v\n", err)
 			return ExitUsage
 		}
-		merged := httpfile.Merge(string(existing), f.requests)
+		merged := httpfile.Merge(existing, f.requests)
 		r := fileReport{Path: rel(f.path()), Added: names(merged.Added), Skipped: names(merged.Skipped)}
-		if !o.DryRun {
-			if err := os.MkdirAll(f.dir, 0o755); err != nil {
+		if len(merged.Added) > 0 {
+			if err := out.write(f.path(), merged.Text); err != nil {
 				fmt.Fprintf(t.Err, "httpgen: %v\n", err)
 				return ExitUsage
 			}
-			if len(merged.Added) > 0 {
-				if err := os.WriteFile(f.path(), []byte(merged.Text), 0o644); err != nil {
-					fmt.Fprintf(t.Err, "httpgen: %v\n", err)
-					return ExitUsage
-				}
-			}
 		}
-		env, err := updateEnvFiles(f, o)
+		env, err := updateEnvFiles(f, o, out)
 		if err != nil {
 			fmt.Fprintf(t.Err, "httpgen: %v\n", err)
 			return ExitUsage
@@ -165,8 +160,37 @@ func appConfig(module string) (props, yaml string) {
 	return props, yaml
 }
 
+// staged is what one run has written, or would write with --dry-run. Reading through it lets a
+// later class that shares a file see the earlier change, so a dry run reports what a real run does.
+type staged struct {
+	dryRun bool
+	files  map[string]string
+}
+
+func (s *staged) read(path string) (string, error) {
+	if text, ok := s.files[path]; ok {
+		return text, nil
+	}
+	b, err := os.ReadFile(path)
+	if err != nil && !os.IsNotExist(err) {
+		return "", err
+	}
+	return string(b), nil
+}
+
+func (s *staged) write(path, text string) error {
+	s.files[path] = text
+	if s.dryRun {
+		return nil
+	}
+	if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+		return err
+	}
+	return os.WriteFile(path, []byte(text), 0o644)
+}
+
 // updateEnvFiles adds missing keys to the env files next to the .http file and returns the files that change.
-func updateEnvFiles(f httpFile, o Options) ([]string, error) {
+func updateEnvFiles(f httpFile, o Options, out *staged) ([]string, error) {
 	shared := []httpfile.Var{{Name: "HOST", Value: f.host}}
 	var private []httpfile.Var
 	if f.graphql && !o.NoLogin {
@@ -186,11 +210,11 @@ func updateEnvFiles(f httpFile, o Options) ([]string, error) {
 			continue
 		}
 		path := filepath.Join(f.dir, e.name)
-		existing, err := os.ReadFile(path)
-		if err != nil && !os.IsNotExist(err) {
+		existing, err := out.read(path)
+		if err != nil {
 			return nil, err
 		}
-		text, ok, err := httpfile.WithEnvKeys(string(existing), o.Env, e.keys)
+		text, ok, err := httpfile.WithEnvKeys(existing, o.Env, e.keys)
 		if err != nil {
 			return nil, fmt.Errorf("%s: %w", rel(path), err)
 		}
@@ -198,10 +222,8 @@ func updateEnvFiles(f httpFile, o Options) ([]string, error) {
 			continue
 		}
 		changed = append(changed, rel(path))
-		if !o.DryRun {
-			if err := os.WriteFile(path, []byte(text), 0o644); err != nil {
-				return nil, err
-			}
+		if err := out.write(path, text); err != nil {
+			return nil, err
 		}
 	}
 	return changed, nil
