@@ -123,14 +123,11 @@ func TestRunHelp(t *testing.T) {
 	}
 }
 
-func TestRunVersionManAndUnbuiltActions(t *testing.T) {
+func TestRunVersionAndMan(t *testing.T) {
 	if code, out, _ := run("--version"); code != ExitOK || !strings.HasPrefix(out, "httpgen dev") {
 		t.Errorf("version: %d %q", code, out)
 	}
 	if code, out, _ := run("--man"); code != ExitOK || !strings.HasPrefix(out, ".TH HTTPGEN 1") || !strings.Contains(out, ".SH TOPIC: REQ") {
 		t.Errorf("man: %d %q", code, out[:min(len(out), 200)])
-	}
-	if code, _, errOut := run("--base64 pdf"); code != ExitUsage || !strings.Contains(errOut, "not available in this build yet") {
-		t.Errorf("base64: %d %q", code, errOut)
 	}
 }

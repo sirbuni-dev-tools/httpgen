@@ -75,8 +75,10 @@ func Run(args []string, t Terminal) int {
 		return runReq(opts, t)
 	case ActionList:
 		return runList(opts, t)
+	case ActionBase64:
+		return runBase64(opts, t)
 	default:
-		fmt.Fprintf(t.Err, "httpgen: --%s is not available in this build yet (see httpgen --help %s)\n", opts.Action, opts.Action)
+		fmt.Fprintf(t.Err, "httpgen: unknown action %q\n", opts.Action)
 		return ExitUsage
 	}
 }
