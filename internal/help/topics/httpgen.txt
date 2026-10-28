@@ -12,7 +12,7 @@ SYNOPSIS
     httpgen --help [topic]
 
 DESCRIPTION
-    httpgen reads Spring Boot controllers and SPQR GraphQL resolvers and writes the same .http request files as the API HTTP Generator plugin for IntelliJ IDEA, without the IDE. The files also run in the VS Code REST Client and the ijhttp command line runner. It is built for terminal users and for LLM agents: one command replaces reading a controller and writing requests by hand.
+    httpgen reads Spring Boot controllers and SPQR GraphQL resolvers and writes the same .http request files as the API HTTP Generator plugin for IntelliJ IDEA, without the IDE. The files use the IntelliJ HTTP Client format ({{$random...}} placeholders, GRAPHQL requests and response scripts), so they run in IntelliJ IDEA and in JetBrains' ijhttp command line runner. It is built for terminal users and for LLM agents: one command replaces reading a controller and writing requests by hand.
 
 MAIN OPTIONS
     --req <path>
@@ -27,12 +27,8 @@ MAIN OPTIONS
 COMMON OPTIONS
     --format <text|json>
         Output for --list, --dry-run and summaries. json is meant for scripts and agents. Default: text.
-    --lang <auto|java>
-        Language of the input. auto detects it from file extensions and build files. Default: auto.
     --quiet, -q
-        Print errors only.
-    --verbose, -v
-        Explain each step.
+        Do not list the files written by --req, --json and --base64 --out. Errors are still printed.
     --no-pager
         Print help straight to the terminal instead of through $PAGER.
     --help [topic], -h
