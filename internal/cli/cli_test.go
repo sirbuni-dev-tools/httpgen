@@ -51,7 +51,7 @@ func TestParseOptions(t *testing.T) {
 		t.Errorf("unexpected options: %+v", o)
 	}
 	o, _ = Parse(strings.Fields("--req a.java"))
-	if o.Depth != 3 || o.Format != "text" || o.Lang != "auto" || o.Env != "local" {
+	if o.Depth != 3 || o.Format != "text" || o.Env != "local" {
 		t.Errorf("unexpected defaults: %+v", o)
 	}
 }
@@ -66,6 +66,9 @@ func TestParseErrors(t *testing.T) {
 		"--json a --depth x":       "--depth needs a whole number",
 		"stray":                    "unexpected argument",
 		"--base64 pdf --wrap many": "--wrap needs a whole number",
+		// Removed in 0.1.1: they were accepted but did nothing.
+		"--req a --lang java": "--lang",
+		"--req a --verbose":   "--verbose",
 	}
 	for args, want := range cases {
 		_, err := Parse(strings.Fields(args))

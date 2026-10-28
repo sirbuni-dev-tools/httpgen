@@ -108,6 +108,30 @@ func TestReqDryRunWritesNothing(t *testing.T) {
 	}
 }
 
+// A dry run reports exactly what the real run then does, even when several classes share the env files.
+func TestReqDryRunMatchesTheRealRun(t *testing.T) {
+	root := project(t)
+	// A resolver read before the controller adds every env key, so the controller adds none.
+	p := filepath.Join(root, "src/main/java/api/AccountResolver.java")
+	if err := os.MkdirAll(filepath.Dir(p), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	src := "package api;\nimport io.leangen.graphql.annotations.*;\npublic class AccountResolver {\n" +
+		"    @GraphQLQuery(name = \"accountCount\") public int count() { return 0; }\n}\n"
+	if err := os.WriteFile(p, []byte(src), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	dir := filepath.Join(root, "src/main/java")
+	_, dry, _ := run("--req " + dir + " --dry-run")
+	_, real, _ := run("--req " + dir)
+	if want := strings.NewReplacer("would add", "added", "would update", "updated").Replace(dry); want != real {
+		t.Errorf("dry run:\n%s\nreal run:\n%s", dry, real)
+	}
+	if n := strings.Count(dry, "http-client.env.json: would update"); n != 1 {
+		t.Errorf("env file reported %d times:\n%s", n, dry)
+	}
+}
+
 func TestReqStdoutMethodFilterAndOptions(t *testing.T) {
 	root := project(t)
 	withResolver(t, root)

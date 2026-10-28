@@ -46,9 +46,7 @@ type Options struct {
 	Wrap      int
 	JSONField string
 	Format    string
-	Lang      string
 	Quiet     bool
-	Verbose   bool
 	NoPager   bool
 }
 
@@ -124,9 +122,7 @@ func specs(o *Options) []flagSpec {
 		{name: "wrap", value: "n", apply: intValue("--wrap", &o.Wrap)},
 		{name: "json-field", value: "name", apply: set(&o.JSONField)},
 		{name: "format", value: "text|json", apply: oneOf("--format", []string{"text", "json"}, &o.Format)},
-		{name: "lang", value: "auto|java", apply: oneOf("--lang", []string{"auto", "java"}, &o.Lang)},
 		{name: "quiet", short: "q", apply: on(&o.Quiet)},
-		{name: "verbose", short: "v", apply: on(&o.Verbose)},
 		{name: "no-pager", apply: on(&o.NoPager)},
 	}
 }
@@ -150,7 +146,7 @@ func usage(format string, a ...any) error { return &UsageError{Msg: fmt.Sprintf(
 
 // Parse reads the arguments. `--help` after an action (`--req --help`) asks for that action's help page.
 func Parse(args []string) (Options, error) {
-	o := Options{Mode: "", Depth: 3, Format: "text", Lang: "auto", Env: "local"}
+	o := Options{Mode: "", Depth: 3, Format: "text", Env: "local"}
 	byName := map[string]flagSpec{}
 	for _, s := range specs(&o) {
 		byName["--"+s.name] = s
